@@ -35,19 +35,22 @@ class Question2(object):
         # Store the covariance matrix in here
         cov = np.zeros((trainfeat.shape[1], trainfeat.shape[1]))
         # Put your code below
-        x = np.array([1, 2, 3], np.int32)
-        y = np.array([True, False, True], np.bool)
+
+        N = trainfeat.shape[0]
+        M = means.shape[0]
 
         for i in range(nlabels):
             labelFilter = (trainlabel == i)
             filteredTrainfeat = trainfeat[labelFilter]
 
-            pi[i] = filteredTrainfeat.shape[0] / trainfeat.shape[0]
-            means[i] = np.sum(filteredTrainfeat, axis=0) / filteredTrainfeat.shape[0]
+            Nl = filteredTrainfeat.shape[0]
+
+            pi[i] = Nl / N
+            means[i] = np.sum(filteredTrainfeat, axis=0) / Nl
 
             cov += np.dot((filteredTrainfeat - means[i]).T, (filteredTrainfeat - means[i]))
 
-        cov /= trainfeat.shape[0] - means.shape[0]
+        cov /= N - M
 
         # Don't change the output!
         return (pi, means, cov)
@@ -82,12 +85,12 @@ class Question3(object):
 
         dis = dist.cdist(testfeat, trainfeat)
 
-        index = np.argpartition(dis, k-1)[:, :k]
+        topKIndex = np.argpartition(dis, k-1)[:, :k]
 
         labels = np.zeros((dis.shape[0], k))
         for i in range(dis.shape[0]):
             for j in range(k):
-                labels[i][j] = trainlabel[index[i][j]]
+                labels[i][j] = trainlabel[topKIndex[i][j]]
 
         labels = stats.mode(labels, axis=1)[0][:, 0]
         return labels
