@@ -78,7 +78,17 @@ class Question2(object):
 
 class Question3(object):
     def kNN(self, trainfeat, trainlabel, testfeat, k):
-        labels = None
+
+        dis = dist.cdist(testfeat, trainfeat)
+
+        index = np.argpartition(dis, k-1)[:, :k]
+
+        labels = np.zeros((dis.shape[0], k))
+        for i in range(dis.shape[0]):
+            for j in range(k):
+                labels[i][j] = trainlabel[index[i][j]]
+
+        labels = stats.mode(labels, axis=1)[0][:, 0]
         return labels
 
     def kNN_errors(self, trainingdata, traininglabels, valdata, vallabels):
@@ -91,21 +101,56 @@ class Question3(object):
             # Please store the two error arrays in increasing order with k
             # This function should call your previous self.kNN() function.
             # Put your code below
-            continue
+            trainingResult = self.kNN(trainingdata, traininglabels, trainingdata, k_array[i])
+            validateResult = self.kNN(trainingdata, traininglabels, valdata, k_array[i])
+
+            trainingError[i] = q1.classifierError(traininglabels, trainingResult)
+            validationError[i] = q1.classifierError(vallabels, validateResult)
 
         # Don't change the output!
         return (trainingError, validationError)
 
 
+import time
 class Question4(object):
     def sklearn_kNN(self, traindata, trainlabels, valdata, vallabels):
-        classifier, valerror, fitTime, predTime = (None, None, None, None)
+
+        classifier = neighbors.KNeighborsClassifier(n_neighbors=1, algorithm='brute')
+
+        fitStart = time.time()
+        classifier.fit(traindata, trainlabels)
+        fitEnd = time.time()
+
+        predictionStart = time.time()
+        prediction = classifier.predict(valdata)
+        predictionEnd = time.time()
+
+        errorMat = vallabels != prediction
+        valerror = np.sum(errorMat) / vallabels.shape[0]
+
+        fitTime = fitEnd - fitStart
+        predTime = predictionEnd - predictionStart
 
         # Don't change the output!
         return (classifier, valerror, fitTime, predTime)
 
     def sklearn_LDA(self, traindata, trainlabels, valdata, vallabels):
-        classifier, valerror, fitTime, predTime = (None, None, None, None)
+
+        classifier = LinearDiscriminantAnalysis()
+
+        fitStart = time.time()
+        classifier.fit(traindata, trainlabels)
+        fitEnd = time.time()
+
+        predictionStart = time.time()
+        prediction = classifier.predict(valdata)
+        predictionEnd = time.time()
+
+        errorMat = vallabels != prediction
+        valerror = np.sum(errorMat) / vallabels.shape[0]
+
+        fitTime = fitEnd - fitStart
+        predTime = predictionEnd - predictionStart
 
         # Don't change the output!
         return (classifier, valerror, fitTime, predTime)
