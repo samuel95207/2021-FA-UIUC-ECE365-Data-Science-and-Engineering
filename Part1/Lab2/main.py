@@ -83,16 +83,19 @@ class Question2(object):
 class Question3(object):
     def kNN(self, trainfeat, trainlabel, testfeat, k):
 
-        dis = dist.cdist(testfeat, trainfeat)
+        N = testfeat.shape[0]
 
-        topKIndex = np.argpartition(dis, k-1)[:, :k]
+        distanceMat = dist.cdist(testfeat, trainfeat)
 
-        labels = np.zeros((dis.shape[0], k))
-        for i in range(dis.shape[0]):
+        nearestKPointIndex = np.argpartition(distanceMat, k-1)
+
+        KLabels = np.zeros((N, k))
+        for i in range(N):
             for j in range(k):
-                labels[i][j] = trainlabel[topKIndex[i][j]]
+                pointIndex = nearestKPointIndex[i][j]
+                KLabels[i][j] = trainlabel[pointIndex]
 
-        labels = stats.mode(labels, axis=1)[0][:, 0]
+        labels = stats.mode(KLabels, axis=1)[0][:, 0]
         return labels
 
     def kNN_errors(self, trainingdata, traininglabels, valdata, vallabels):
