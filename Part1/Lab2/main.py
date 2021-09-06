@@ -3,6 +3,7 @@ import scipy.spatial.distance as dist
 from scipy import stats
 from sklearn import neighbors
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+import time
 
 
 class Question1(object):
@@ -111,7 +112,6 @@ class Question3(object):
         return (trainingError, validationError)
 
 
-import time
 class Question4(object):
     def sklearn_kNN(self, traindata, trainlabels, valdata, vallabels):
 
