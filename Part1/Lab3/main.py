@@ -1,3 +1,6 @@
+from sklearn.svm import SVC
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import cross_val_score
 import numpy as np
 import time
 from sklearn.naive_bayes import BernoulliNB
@@ -7,7 +10,10 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 
 # You may use this function as you like.
-error = lambda y, yhat: np.mean(y!=yhat)
+
+
+def error(y, yhat): return np.mean(y != yhat)
+
 
 class Question1(object):
     # The sequence in this problem is different from the one you saw in the jupyter notebook. This makes it easier to grade. Apologies for any inconvenience.
@@ -30,6 +36,23 @@ class Question1(object):
         You can ignore all errors, if any.
         """
         # Put your code below
+
+        classifier = BernoulliNB()
+
+        fitStart = time.time()
+        classifier.fit(traindata, trainlabels)
+        fitEnd = time.time()
+
+        trainingPred = classifier.predict(traindata)
+        predictionStart = time.time()
+        valPred = classifier.predict(valdata)
+        predictionEnd = time.time()
+
+        trainingError = error(trainlabels, trainingPred)
+        validationError = error(vallabels, valPred)
+
+        fittingTime = fitEnd - fitStart
+        valPredictingTime = predictionEnd - predictionStart
 
         # Do not change this sequence!
         return (classifier, trainingError, validationError, fittingTime, valPredictingTime)
@@ -54,6 +77,23 @@ class Question1(object):
         """
         # Put your code below
 
+        classifier = MultinomialNB()
+
+        fitStart = time.time()
+        classifier.fit(traindata, trainlabels)
+        fitEnd = time.time()
+
+        trainingPred = classifier.predict(traindata)
+        predictionStart = time.time()
+        valPred = classifier.predict(valdata)
+        predictionEnd = time.time()
+
+        trainingError = error(trainlabels, trainingPred)
+        validationError = error(vallabels, valPred)
+
+        fittingTime = fitEnd - fitStart
+        valPredictingTime = predictionEnd - predictionStart
+
         # Do not change this sequence!
         return (classifier, trainingError, validationError, fittingTime, valPredictingTime)
 
@@ -77,6 +117,23 @@ class Question1(object):
         """
         # Put your code below
 
+        classifier = LinearSVC()
+
+        fitStart = time.time()
+        classifier.fit(traindata, trainlabels)
+        fitEnd = time.time()
+
+        trainingPred = classifier.predict(traindata)
+        predictionStart = time.time()
+        valPred = classifier.predict(valdata)
+        predictionEnd = time.time()
+
+        trainingError = error(trainlabels, trainingPred)
+        validationError = error(vallabels, valPred)
+
+        fittingTime = fitEnd - fitStart
+        valPredictingTime = predictionEnd - predictionStart
+
         # Do not change this sequence!
         return (classifier, trainingError, validationError, fittingTime, valPredictingTime)
 
@@ -99,6 +156,23 @@ class Question1(object):
         You can ignore all errors, if any.
         """
         # Put your code below
+
+        classifier = LogisticRegression()
+
+        fitStart = time.time()
+        classifier.fit(traindata, trainlabels)
+        fitEnd = time.time()
+
+        trainingPred = classifier.predict(traindata)
+        predictionStart = time.time()
+        valPred = classifier.predict(valdata)
+        predictionEnd = time.time()
+
+        trainingError = error(trainlabels, trainingPred)
+        validationError = error(vallabels, valPred)
+
+        fittingTime = fitEnd - fitStart
+        valPredictingTime = predictionEnd - predictionStart
 
         # Do not change this sequence!
         return (classifier, trainingError, validationError, fittingTime, valPredictingTime)
@@ -125,10 +199,27 @@ class Question1(object):
         """
         # Put your code below
 
+        classifier = KNeighborsClassifier()
+
+        fitStart = time.time()
+        classifier.fit(traindata, trainlabels)
+        fitEnd = time.time()
+
+        trainingPred = classifier.predict(traindata)
+        predictionStart = time.time()
+        valPred = classifier.predict(valdata)
+        predictionEnd = time.time()
+
+        trainingError = error(trainlabels, trainingPred)
+        validationError = error(vallabels, valPred)
+
+        fittingTime = fitEnd - fitStart
+        valPredictingTime = predictionEnd - predictionStart
+
         # Do not change this sequence!
         return (classifier, trainingError, validationError, fittingTime, valPredictingTime)
 
-    def confMatrix(self,truelabels,estimatedlabels):
+    def confMatrix(self, truelabels, estimatedlabels):
         """ Write a function that calculates the confusion matrix (cf. Fig. 2.1 in the notes).
 
         You may wish to read Section 2.1.1 in the notes -- it may be helpful, but is not necessary to complete this problem.
@@ -140,8 +231,18 @@ class Question1(object):
         Outputs:
         1. cm                   (2,2) numpy ndarray. The calculated confusion matrix.
         """
-        cm = np.zeros((2,2))
+        cm = np.zeros((2, 2))
         # Put your code below
+
+        AP = (truelabels == 1)           #Actually Positive
+        AN = (truelabels == -1)          #Actually Negative
+        PP = (estimatedlabels == 1)      #Predicted Positive
+        PN = (estimatedlabels == -1)     #Predicted Negative
+
+        cm[0,0] = np.sum(AP & PP)
+        cm[0,1] = np.sum(AN & PP)
+        cm[1,0] = np.sum(AP & PN)
+        cm[1,1] = np.sum(AN & PN)
 
         return cm
 
@@ -161,11 +262,17 @@ class Question1(object):
         """
         # Put your code below
 
+        classifier = LogisticRegression()
+        classifier.fit(traindata, trainlabels)
+        estimatedlabels = classifier.predict(testdata)
+        testError = error(testlabels, estimatedlabels)
+
 
         # You can use the following line after you finish the rest
         confusionMatrix = self.confMatrix(testlabels, estimatedlabels)
         # Do not change this sequence!
         return (classifier, testError, confusionMatrix)
+
 
 class Question2(object):
     def crossValidationkNN(self, traindata, trainlabels, k):
@@ -219,9 +326,6 @@ class Question2(object):
         # Do not change this sequence!
         return (classifier, testError)
 
-from sklearn.svm import SVC
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import GridSearchCV
 
 class Question3(object):
     def LinearSVC_crossValidation(self, traindata, trainlabels):
