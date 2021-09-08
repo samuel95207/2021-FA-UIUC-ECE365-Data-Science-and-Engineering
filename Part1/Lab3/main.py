@@ -234,15 +234,15 @@ class Question1(object):
         cm = np.zeros((2, 2))
         # Put your code below
 
-        AP = (truelabels == 1)           #Actually Positive
-        AN = (truelabels == -1)          #Actually Negative
-        PP = (estimatedlabels == 1)      #Predicted Positive
-        PN = (estimatedlabels == -1)     #Predicted Negative
+        AP = (truelabels == 1)  # Actually Positive
+        AN = (truelabels == -1)  # Actually Negative
+        PP = (estimatedlabels == 1)  # Predicted Positive
+        PN = (estimatedlabels == -1)  # Predicted Negative
 
-        cm[0,0] = np.sum(AP & PP)
-        cm[0,1] = np.sum(AN & PP)
-        cm[1,0] = np.sum(AP & PN)
-        cm[1,1] = np.sum(AN & PN)
+        cm[0, 0] = np.sum(AP & PP)
+        cm[0, 1] = np.sum(AN & PP)
+        cm[1, 0] = np.sum(AP & PN)
+        cm[1, 1] = np.sum(AN & PN)
 
         return cm
 
@@ -267,7 +267,6 @@ class Question1(object):
         estimatedlabels = classifier.predict(testdata)
         testError = error(testlabels, estimatedlabels)
 
-
         # You can use the following line after you finish the rest
         confusionMatrix = self.confMatrix(testlabels, estimatedlabels)
         # Do not change this sequence!
@@ -291,6 +290,32 @@ class Question2(object):
         err = np.zeros(k+1)
         # Put your code below
 
+        foldNum = 5
+        N = traindata.shape[0]
+
+        for i in range(1, k+1):
+            iter_error = 0
+
+            for j in range(foldNum):
+                cut0_idx = j*N//foldNum
+                cut1_idx = (j+1)*N//foldNum
+
+
+                fold_valData= traindata[cut0_idx: cut1_idx , :]
+                fold_valLabels= trainlabels[cut0_idx: cut1_idx]
+                fold_trainData = np.concatenate((traindata[: cut0_idx, :], traindata[cut1_idx:, :]))
+                fold_trainLabels = np.concatenate((trainlabels[: cut0_idx], trainlabels[cut1_idx:]))
+
+                classifier = KNeighborsClassifier(n_neighbors=i, algorithm='brute')
+                classifier.fit(fold_trainData, fold_trainLabels)
+
+                fold_pred = classifier.predict(fold_valData)
+
+                iter_error += error(fold_valLabels, fold_pred)
+
+            iter_error /= foldNum
+            err[i] = iter_error
+
         return err
 
     def minimizer_K(self, kNN_errors):
@@ -304,6 +329,9 @@ class Question2(object):
         2. err_min              Float. The correponding minimum error.
         """
         # Put your code below
+
+        k_min = np.argmin(kNN_errors[1:]) + 1
+        err_min = kNN_errors[k_min]
 
         # Do not change this sequence!
         return (k_min, err_min)
@@ -322,6 +350,12 @@ class Question2(object):
         2. testError            Float. The reported test error. It should be less than 1.
         """
         # Put your code below
+        best_k = 14
+
+        classifier = KNeighborsClassifier(best_k)
+        classifier.fit(traindata,trainlabels)
+        estimatedlabels = classifier.predict(testdata)
+        testError = error(testlabels, estimatedlabels)
 
         # Do not change this sequence!
         return (classifier, testError)
