@@ -199,7 +199,7 @@ class Question1(object):
         """
         # Put your code below
 
-        classifier = KNeighborsClassifier()
+        classifier = KNeighborsClassifier(n_neighbors=1, algorithm='brute')
 
         fitStart = time.time()
         classifier.fit(traindata, trainlabels)
@@ -300,9 +300,8 @@ class Question2(object):
                 cut0_idx = j*N//foldNum
                 cut1_idx = (j+1)*N//foldNum
 
-
-                fold_valData= traindata[cut0_idx: cut1_idx , :]
-                fold_valLabels= trainlabels[cut0_idx: cut1_idx]
+                fold_valData = traindata[cut0_idx: cut1_idx, :]
+                fold_valLabels = trainlabels[cut0_idx: cut1_idx]
                 fold_trainData = np.concatenate((traindata[: cut0_idx, :], traindata[cut1_idx:, :]))
                 fold_trainLabels = np.concatenate((trainlabels[: cut0_idx], trainlabels[cut1_idx:]))
 
@@ -353,7 +352,7 @@ class Question2(object):
         best_k = 14
 
         classifier = KNeighborsClassifier(best_k)
-        classifier.fit(traindata,trainlabels)
+        classifier.fit(traindata, trainlabels)
         estimatedlabels = classifier.predict(testdata)
         testError = error(testlabels, estimatedlabels)
 
@@ -376,6 +375,18 @@ class Question3(object):
         2. min_err              Float. The correponding minimum error.
         """
         # Put your code below
+        k = 10
+        C_list = [2 ** i for i in range(-5, 16)]
+        error_list = np.zeros(len(C_list))
+
+        for idx, C in enumerate(C_list):
+            classifier = LinearSVC(C=C)
+            cross_error_list = 1 - cross_val_score(classifier, traindata, trainlabels, cv=k)
+            error_list[idx] = np.mean(cross_error_list)
+
+        min_error_idx = np.argmin(error_list)
+        min_err = error_list[min_error_idx]
+        C_min = C_list[min_error_idx]
 
         # Do not change this sequence!
         return (C_min, min_err)
@@ -395,6 +406,19 @@ class Question3(object):
         3. min_err              Float. The correponding minimum error.
         """
         # Put your code below
+        k = 10
+        C_list = [2 ** i for i in range(-14, 15)]
+        gamma_list = [2 ** i for i in range(-15, 4)]
+
+        classifier = SVC()
+        gridSearch = GridSearchCV(classifier,
+                                  param_grid={"C": C_list, "gamma": gamma_list},
+                                  cv=k)
+        gridSearch.fit(traindata, trainlabels)
+
+        C_min = gridSearch.best_params_['C']
+        gamma_min = gridSearch.best_params_['gamma']
+        min_err = 1 - gridSearch.best_score_
 
         # Do not change this sequence!
         return (C_min, gamma_min, min_err)
@@ -414,6 +438,18 @@ class Question3(object):
         """
         # Put your code below
 
+        k = 10
+        C_list = [2 ** i for i in range(-14, 15)]
+
+        classifier = LogisticRegression()
+        gridSearch = GridSearchCV(classifier,
+                                  param_grid={'C': C_list},
+                                  cv=k)
+        gridSearch.fit(traindata, trainlabels)
+
+        C_min = gridSearch.best_params_['C']
+        min_err = 1 - gridSearch.best_score_
+
         # Do not change this sequence!
         return (C_min, min_err)
 
@@ -431,6 +467,14 @@ class Question3(object):
         2. testError            Float. The reported test error. It should be less than 1.
         """
         # Put your code below
+
+        best_C = 8
+        best_gamma = 0.125
+
+        classifier = SVC(C=best_C, gamma=best_gamma)
+        classifier.fit(traindata, trainlabels)
+        estimatedlabels = classifier.predict(testdata)
+        testError = error(testlabels, estimatedlabels)
 
         # Do not change this sequence!
         return (classifier, testError)
