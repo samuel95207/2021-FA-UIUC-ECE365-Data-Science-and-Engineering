@@ -184,6 +184,26 @@ class Question3(object):
         proto_lab_list = []
         # Put your code below
 
+        Nt, d = traindata.shape
+
+        classes = np.unique(trainlabels)
+        classNum = classes.shape[0]
+
+        for k in K_list:
+            proto_dat = np.zeros((k*classNum, d))
+            proto_lab = np.zeros(k*classNum)
+            for i, classIter in enumerate(classes):
+                data = traindata[trainlabels == classIter]
+
+                kmeans = KMeans(k, init='k-means++')
+                kmeans.fit(data)
+
+                proto_dat[i * k:(i + 1) * k, :] = kmeans.cluster_centers_
+                proto_lab[i * k:(i + 1) * k] = np.repeat(classIter, k)
+
+            proto_dat_list.append(proto_dat)
+            proto_lab_list.append(proto_lab)
+
         # Check that your proto_lab_list only contains integer arrays!
         return (proto_dat_list, proto_lab_list)
 
@@ -203,6 +223,12 @@ class Question3(object):
         """
         proto_err = np.zeros(len(proto_dat_list))
         # Put your code below
+
+        for i, (proto_dat, proto_lab) in enumerate(zip(proto_dat_list, proto_lab_list)):
+            classifier = neighbors.KNeighborsClassifier(1)
+            classifier.fit(proto_dat, proto_lab)
+            esttrlabels = classifier.predict(valdata)
+            proto_err[i] = 1 - np.mean(vallabels == esttrlabels)
 
         return proto_err
 
