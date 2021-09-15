@@ -83,6 +83,19 @@ class Question2(object):
         np.random.seed(12345)
         # Put your code below
 
+        N, M = image.shape
+        N_block, M_block = N // B, M // B
+
+        data = np.zeros((N_block * M_block, B * B))
+
+        for y in range(N_block):
+            for x in range(M_block):
+                data[y * M_block + x] = image[y * B: (y + 1) * B, x * B: (x + 1) * B].flatten()
+
+        kmeans = KMeans(n_clusters=K, init='k-means++')
+        kmeans.fit(data)
+        codebook = kmeans.cluster_centers_
+
         return (codebook, kmeans)
 
     def compressImg(self, image, codebook, B):
@@ -104,6 +117,18 @@ class Question2(object):
         """
         # Put your code below
 
+        N, M = image.shape
+        N_block, M_block = N // B, M // B
+
+        data = np.zeros((N_block * M_block, B * B))
+
+        for y in range(N_block):
+            for x in range(M_block):
+                data[y * M_block + x] = image[y * B: (y + 1) * B, x * B: (x + 1) * B].flatten()
+
+        distanceMat = dist.cdist(data, codebook)
+        cmpimg = np.argmin(distanceMat, axis=1).reshape(N_block, M_block)
+
         # Check that your indices are integers!
         return cmpimg.astype(int)
 
@@ -121,6 +146,16 @@ class Question2(object):
         1. rctimage     (N, M) numpy ndarray. It consists of the indices in the codebook used to approximate the image.
         """
         # Put your code below
+
+        N_block, M_block = indices.shape
+        N, M = N_block * B, M_block * B
+
+        rctimage = np.zeros((N, M))
+
+        for y in range(N_block):
+            for x in range(M_block):
+                color = codebook[indices[y][x]].reshape(5, 5)
+                rctimage[y * B: (y + 1) * B, x * B: (x + 1) * B] = color
 
         return rctimage
 
