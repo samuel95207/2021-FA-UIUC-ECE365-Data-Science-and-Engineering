@@ -1,11 +1,13 @@
+from sklearn.cluster import KMeans
 import numpy as np
 from sklearn import neighbors
 import scipy.spatial.distance as dist
 from sklearn import linear_model
 from sklearn.model_selection import train_test_split
 
+
 class Question1(object):
-    def kMeans(self,data,K,niter):
+    def kMeans(self, data, K, niter):
         """ Implement the K-Means algorithm.
 
         **For grading purposes only:**
@@ -25,11 +27,20 @@ class Question1(object):
         """
         np.random.seed(12312)
         # Put your code below
+        centers = data[np.random.choice(data.shape[0], K, replace=False)]
+
+        for i in range(niter):
+            distanceMat = dist.cdist(data, centers)
+            labels = np.argmin(distanceMat, axis=1)
+
+            for j in range(K):
+                clusterIter = data[labels == j]
+                centers[j] = np.mean(clusterIter, axis=0)
 
         # Remember to check your data types: labels should be integers!
         return (labels, centers)
 
-    def calculateJ(self,data,kMeansfun):
+    def calculateJ(self, data, kMeansfun):
         """ Calculate the J_k value for K=2,...,10.
 
         This function should call the given kMeansfun function and set niter=100.
@@ -41,15 +52,19 @@ class Question1(object):
         Outputs:
         1. err          (9,) numpy array. The i-th element contains the J_k value when k = i+2.
         """
-        err = np.zeros(9)
+        kRange = (2, 11)
+        err = np.zeros(kRange[1] - kRange[0])
         # Put your code below
+        niter = 100
+        for k in range(kRange[0], kRange[1]):
+            labels, centers = kMeansfun(data, k, niter)
+            err[k-kRange[0]] = np.sum((data - centers[labels]) ** 2)
 
         return err
 
-from sklearn.cluster import KMeans
 
 class Question2(object):
-    def trainVQ(self,image,B,K):
+    def trainVQ(self, image, B, K):
         """ Generate a codebook for vector quantization.
 
         Please use the KMeans function from the sklearn package. You can use kmeans.cluster_centers_ to get the cluster centers after you fit your model.
@@ -68,9 +83,9 @@ class Question2(object):
         np.random.seed(12345)
         # Put your code below
 
-        return (codebook,kmeans)
+        return (codebook, kmeans)
 
-    def compressImg(self,image,codebook,B):
+    def compressImg(self, image, codebook, B):
         """ Compress an image using a given codebook.
 
         You can use the nearest neighbor classifier from scikit-learn if you want (though it is not necessary) to map blocks to their nearest codeword.
@@ -92,7 +107,7 @@ class Question2(object):
         # Check that your indices are integers!
         return cmpimg.astype(int)
 
-    def decompressImg(self,indices,codebook,B):
+    def decompressImg(self, indices, codebook, B):
         """ Reconstruct an image from its codebook.
 
         You can use np.reshape() to reshape the flattened array.
@@ -109,8 +124,9 @@ class Question2(object):
 
         return rctimage
 
+
 class Question3(object):
-    def generatePrototypes(self,traindata,trainlabels,K_list):
+    def generatePrototypes(self, traindata, trainlabels, K_list):
         """ Generate prototypes from labeled data.
 
         You can use the KMeans function from the sklearn package.
@@ -136,7 +152,7 @@ class Question3(object):
         # Check that your proto_lab_list only contains integer arrays!
         return (proto_dat_list, proto_lab_list)
 
-    def protoValError(self,proto_dat_list,proto_lab_list,valdata,vallabels):
+    def protoValError(self, proto_dat_list, proto_lab_list, valdata, vallabels):
         """ Generate prototypes from labeled data.
 
         You may assume there are at least min(K_list) examples under each class. set(trainlabels) will give you the set of labels.
@@ -155,8 +171,9 @@ class Question3(object):
 
         return proto_err
 
+
 class Question4(object):
-    def benchmarkRSS(self,trainfeat,trainresp,valfeat,valresp):
+    def benchmarkRSS(self, trainfeat, trainresp, valfeat, valresp):
         """ Return the benchmark RSS.
 
         In particular, always predict the response as zero (mean response on the training data).
@@ -176,7 +193,7 @@ class Question4(object):
 
         return rss
 
-    def OLSRSS(self,trainfeat,trainresp,valfeat,valresp):
+    def OLSRSS(self, trainfeat, trainresp, valfeat, valresp):
         """ Return the RSS from the ordinary least squares model.
 
         Use sklearn.linear_model.LinearRegression() with the default parameters.
@@ -198,7 +215,7 @@ class Question4(object):
 
         return rss
 
-    def RidgeRSS(self,trainfeat,trainresp,valfeat,valresp):
+    def RidgeRSS(self, trainfeat, trainresp, valfeat, valresp):
         """ Return the RSS from the ridge regression.
 
         Apply ridge regression with sklearn.linear_model.Ridge. Sweep the regularization/tuning parameter α = 0,...,100 with 1000 equally spaced values.
@@ -217,13 +234,13 @@ class Question4(object):
         3. best_rss     Scalar. The corresponding RSS.
         4. coef         (d,) numpy array. The minimizing coefficient. This is for visualization only. This will not be tested by the autograder.
         """
-        a = np.linspace(0,100,1000)
+        a = np.linspace(0, 100, 1000)
         rss_array = np.zeros(a.shape)
         # Put your code below
 
         return (rss_array, best_a, best_rss, coef)
 
-    def LassoRSS(self,trainfeat,trainresp,valfeat,valresp):
+    def LassoRSS(self, trainfeat, trainresp, valfeat, valresp):
         """ Return the RSS from the Lasso regression.
 
         Apply lasso regression with sklearn.linear_model.Lasso. Sweep the regularization/tuning parameter α = 0,...,1 with 1000 equally spaced values.
@@ -242,7 +259,7 @@ class Question4(object):
         3. best_rss     Scalar. The corresponding RSS.
         4. coef         (d,) numpy array. The minimizing coefficient. This is for visualization only. This will not be tested by the autograder.
         """
-        a = np.linspace(0.00001,1,1000)     # Since 0 will give an error, we use 0.00001 instead.
+        a = np.linspace(0.00001, 1, 1000)     # Since 0 will give an error, we use 0.00001 instead.
         rss_array = np.zeros(a.shape)
         # Put your code below
 
