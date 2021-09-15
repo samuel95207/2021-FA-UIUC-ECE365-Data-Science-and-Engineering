@@ -1,3 +1,4 @@
+from scipy.optimize.zeros import ridder
 from sklearn.cluster import KMeans
 import numpy as np
 from sklearn import neighbors
@@ -251,6 +252,7 @@ class Question4(object):
         1. rss          Scalar. The validation RSS.
         """
         # Put your code below
+        rss = np.mean(valresp ** 2)
 
         return rss
 
@@ -273,6 +275,11 @@ class Question4(object):
         1. rss          Scalar. The validation RSS.
         """
         # Put your code below
+
+        model = linear_model.LinearRegression()
+        model.fit(trainfeat, trainresp)
+        esttrresp = model.predict(valfeat)
+        rss = np.mean((valresp-esttrresp) ** 2)
 
         return rss
 
@@ -298,6 +305,21 @@ class Question4(object):
         a = np.linspace(0, 100, 1000)
         rss_array = np.zeros(a.shape)
         # Put your code below
+        Nt, d = trainfeat.shape
+        coefList = np.zeros((len(a), d))
+
+        for i, aIter in enumerate(a):
+            model = linear_model.Ridge(alpha=aIter)
+            model.fit(trainfeat, trainresp)
+            esttrresp = model.predict(valfeat)
+
+            coefList[i] = model.coef_
+            rss_array[i] = np.mean((valresp-esttrresp) ** 2)
+
+        bestIdx = np.argmin(rss_array)
+        best_a = a[bestIdx]
+        best_rss = rss_array[bestIdx]
+        coef = coefList[bestIdx]
 
         return (rss_array, best_a, best_rss, coef)
 
@@ -323,5 +345,21 @@ class Question4(object):
         a = np.linspace(0.00001, 1, 1000)     # Since 0 will give an error, we use 0.00001 instead.
         rss_array = np.zeros(a.shape)
         # Put your code below
+
+        Nt, d = trainfeat.shape
+        coefList = np.zeros((len(a), d))
+
+        for i, aIter in enumerate(a):
+            model = linear_model.Lasso(alpha=aIter)
+            model.fit(trainfeat, trainresp)
+            esttrresp = model.predict(valfeat)
+
+            coefList[i] = model.coef_
+            rss_array[i] = np.mean((valresp-esttrresp) ** 2)
+
+        bestIdx = np.argmin(rss_array)
+        best_a = a[bestIdx]
+        best_rss = rss_array[bestIdx]
+        coef = coefList[bestIdx]
 
         return (rss_array, best_a, best_rss, coef)
