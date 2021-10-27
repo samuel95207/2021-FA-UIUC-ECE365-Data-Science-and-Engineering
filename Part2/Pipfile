@@ -7,8 +7,9 @@ name = "pypi"
 tensorflow = "*"
 numpy = "*"
 pandas = "*"
-matplotlib = "*"
+matplotlib = "<3.3.0"
 sklearn = "*"
+seaborn = "*"
 
 [dev-packages]
 ipykernel = "*"
