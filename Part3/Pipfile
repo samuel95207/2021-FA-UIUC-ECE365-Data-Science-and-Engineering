@@ -10,9 +10,10 @@ scipy = "*"
 matplotlib = "*"
 scikit-image = "*"
 plotly = "*"
+sklearn = "*"
+latex = "*"
 
 [dev-packages]
-ipykernel = "*"
 
 [requires]
 python_version = "3.8"
