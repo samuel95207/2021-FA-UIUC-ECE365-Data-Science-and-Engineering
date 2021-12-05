@@ -5,7 +5,7 @@ class Question1(object):
     def pca_reduce_dimen(self, X):
         K = 2
         n = X.shape[1]
-        
+
         X_mean = X.mean(axis=1).reshape((X.shape[0], 1))
         C = (X-X_mean) @ (X-X_mean).T / n
         eigen_value, eigen_vector = np.linalg.eigh(C)
@@ -37,8 +37,7 @@ class Question1(object):
 
 class Question2(object):
     def wiener_filter(self, data_noisy, C, mu, sigma):
-        filtered = None
-        print()
+        filtered = mu + C @ np.linalg.inv(C + sigma**2 * np.identity(data_noisy.shape[0])) @ (data_noisy - mu)
         return filtered
 
 
